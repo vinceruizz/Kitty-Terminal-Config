@@ -18,6 +18,14 @@ A sleek, transparent Kitty terminal configuration featuring the **Cyber Wave** t
 
 ## Installation
 
+### Quick Install
+
+```bash
+bash <(curl -s https://raw.githubusercontent.com/vinceruizz/Kitty-Terminal-Config/main/install.sh)
+```
+
+> **Warning**: This will overwrite your existing kitty configuration!
+
 ### Prerequisites
 
 Install Kitty terminal first:
@@ -43,23 +51,8 @@ winget install kovidgoyal.kitty
 ```
 Or download from [Kitty Releases](https://github.com/kovidgoyal/kitty/releases)
 
-### Install Config
+### Manual Installation
 
-**macOS / Linux / WSL**
-```bash
-git clone https://github.com/vinceruizz/Kitty-Terminal-Config.git
-cd Kitty-Terminal-Config
-./install.sh
-```
-
-**Windows (Git Bash)**
-```bash
-git clone https://github.com/vinceruizz/Kitty-Terminal-Config.git
-cd Kitty-Terminal-Config
-./install.sh
-```
-
-**Manual Installation**
 ```bash
 # macOS / Linux
 cp kitty.conf ~/.config/kitty/kitty.conf
