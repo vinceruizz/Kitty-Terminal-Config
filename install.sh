@@ -12,8 +12,20 @@ info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; exit 1; }
 
-# Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Repository URL
+REPO_URL="https://github.com/vinceruizz/Kitty-Terminal-Config.git"
+TMP_DIR="/tmp/kitty-config-install"
+
+# Cleanup function
+cleanup() {
+    if [ -d "$TMP_DIR" ]; then
+        info "Cleaning up temporary files..."
+        rm -rf "$TMP_DIR"
+    fi
+}
+
+# Set trap to cleanup on exit
+trap cleanup EXIT
 
 # Detect OS and set config directory
 detect_os() {
@@ -81,42 +93,69 @@ check_kitty() {
     fi
 }
 
-# Backup existing config
-backup_config() {
-    if [ -e "$CONFIG_DIR/kitty.conf" ]; then
-        BACKUP="$CONFIG_DIR/kitty.conf.backup.$(date +%Y%m%d_%H%M%S)"
-        warn "Existing config found. Backing up to: $BACKUP"
-        cp "$CONFIG_DIR/kitty.conf" "$BACKUP"
+# Clone repository to temp directory
+clone_repo() {
+    info "Cloning repository to temporary directory..."
+
+    # Remove existing temp directory if it exists
+    if [ -d "$TMP_DIR" ]; then
+        rm -rf "$TMP_DIR"
+    fi
+
+    git clone --depth 1 "$REPO_URL" "$TMP_DIR" || error "Failed to clone repository"
+    info "Repository cloned successfully!"
+}
+
+# Warn and confirm overwrite
+confirm_overwrite() {
+    echo ""
+    echo -e "${RED}=========================================${NC}"
+    echo -e "${RED}  WARNING: This will OVERWRITE your${NC}"
+    echo -e "${RED}  existing kitty configuration!${NC}"
+    echo -e "${RED}=========================================${NC}"
+    echo ""
+
+    if [ -e "$CONFIG_DIR" ]; then
+        warn "Existing config found at: $CONFIG_DIR"
+        echo "This directory will be DELETED and replaced."
+        echo ""
+    fi
+
+    read -p "Are you sure you want to continue? [y/N] " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        info "Installation cancelled."
+        exit 0
     fi
 }
 
 # Install the config
 install_config() {
-    # Create config directory if it doesn't exist
+    # Remove existing config directory if it exists
+    if [ -e "$CONFIG_DIR" ]; then
+        info "Removing existing config..."
+        rm -rf "$CONFIG_DIR"
+    fi
+
+    # Create parent directory if needed
+    mkdir -p "$(dirname "$CONFIG_DIR")"
+
+    # Copy config files
+    info "Installing config to $CONFIG_DIR..."
     mkdir -p "$CONFIG_DIR"
 
-    # Ask user preference
-    echo ""
-    echo "Installation method:"
-    echo "  1) Symlink (recommended - stays in sync with repo)"
-    echo "  2) Copy (standalone copy)"
-    read -p "Choose [1/2]: " -n 1 -r
-    echo
+    # Copy all config files (excluding git directory and install script)
+    cp "$TMP_DIR/kitty.conf" "$CONFIG_DIR/"
+    cp "$TMP_DIR/macos.conf" "$CONFIG_DIR/"
+    cp "$TMP_DIR/linux.conf" "$CONFIG_DIR/"
+    cp "$TMP_DIR/windows.conf" "$CONFIG_DIR/"
 
-    case $REPLY in
-        2)
-            info "Copying config to $CONFIG_DIR"
-            cp "$SCRIPT_DIR/kitty.conf" "$CONFIG_DIR/kitty.conf"
-            info "Config copied successfully!"
-            ;;
-        *)
-            info "Creating symlink to $CONFIG_DIR"
-            # Remove existing file/symlink
-            rm -f "$CONFIG_DIR/kitty.conf"
-            ln -s "$SCRIPT_DIR/kitty.conf" "$CONFIG_DIR/kitty.conf"
-            info "Symlink created successfully!"
-            ;;
-    esac
+    # Copy PowerShell profile if it exists
+    if [ -f "$TMP_DIR/Microsoft.PowerShell_profile.ps1" ]; then
+        cp "$TMP_DIR/Microsoft.PowerShell_profile.ps1" "$CONFIG_DIR/"
+    fi
+
+    info "Config installed successfully!"
 }
 
 # Main
@@ -130,7 +169,8 @@ main() {
 
     detect_os
     check_kitty
-    backup_config
+    confirm_overwrite
+    clone_repo
     install_config
 
     echo ""
