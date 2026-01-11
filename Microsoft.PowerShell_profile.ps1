@@ -1,27 +1,8 @@
 # PowerShell Profile - Matching zsh prompt style
 # Copy this to: $HOME\Documents\PowerShell\Microsoft.PowerShell_profile.ps1
 
-# Enable syntax highlighting and colors via PSReadLine
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -PredictionViewStyle ListView
+# Vi mode
 Set-PSReadLineOption -EditMode Vi
-
-# Set colors for syntax highlighting (matching zsh theme)
-Set-PSReadLineOption -Colors @{
-    Command            = 'Green'
-    Parameter          = 'DarkGray'
-    Operator           = 'White'
-    Variable           = 'Cyan'
-    String             = 'Yellow'
-    Number             = 'Magenta'
-    Type               = 'DarkYellow'
-    Comment            = 'DarkGreen'
-    Keyword            = 'Green'
-    Error              = 'Red'
-    Selection          = "$([char]0x1b)[7m"
-    InlinePrediction   = 'DarkGray'
-    ListPrediction     = 'DarkGray'
-}
 
 # Git branch function
 function Get-GitBranch {
