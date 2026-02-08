@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Toggle between Hacker and Space themes for Kitty
 
 KITTY_DIR="$HOME/.config/kitty"
@@ -21,7 +21,7 @@ else
 fi
 
 # Toggle to the other theme
-if [[ "$CURRENT" == *"hacker"* ]]; then
+if echo "$CURRENT" | grep -q "hacker"; then
     ln -sf "$SPACE_THEME" "$CURRENT_THEME"
     echo "Switched to Space theme"
 else
