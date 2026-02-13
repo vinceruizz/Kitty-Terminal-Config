@@ -153,6 +153,20 @@ install_config() {
   cp "$TMP_DIR/linux.conf" "$CONFIG_DIR/"
   cp "$TMP_DIR/windows.conf" "$CONFIG_DIR/"
 
+  # Copy themes directory
+  if [ -d "$TMP_DIR/themes" ]; then
+    cp -r "$TMP_DIR/themes" "$CONFIG_DIR/"
+  fi
+
+  # Copy toggle-theme script
+  if [ -f "$TMP_DIR/toggle-theme.sh" ]; then
+    cp "$TMP_DIR/toggle-theme.sh" "$CONFIG_DIR/"
+    chmod +x "$CONFIG_DIR/toggle-theme.sh"
+  fi
+
+  # Create current-theme.conf symlink pointing to hacker theme as default
+  ln -sf "$CONFIG_DIR/themes/hacker.conf" "$CONFIG_DIR/current-theme.conf"
+
   # Copy PowerShell profile if it exists
   if [ -f "$TMP_DIR/Microsoft.PowerShell_profile.ps1" ]; then
     cp "$TMP_DIR/Microsoft.PowerShell_profile.ps1" "$CONFIG_DIR/"
